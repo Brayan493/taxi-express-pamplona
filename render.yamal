@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: taxi-express
+    env: php
+    plan: free
+    buildCommand: |
+      composer install --no-dev --optimize-autoloader
+      php artisan key:generate --ansi
+      php artisan migrate:fresh --force
+      php artisan config:clear
+      php artisan route:clear
+      php artisan view:clear
+    startCommand: heroku-php-apache2 public/
+    envVars:
+      - key: APP_KEY
+        sync: false
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_URL
+        value: https://taxi-express-prueba.onrender.com
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        value: dpg-d3om8hvdiees73c2t8k0-a
+      - key: DB_PORT
+        value: 5432
+      - key: DB_DATABASE
+        value: taxi_express_odw3
+      - key: DB_USERNAME
+        value: taxi_express_user
+      - key: DB_PASSWORD
+        value: 4PPbfELq5apz18xZJDDlBZIdqsPs0DjD
+      - key: SESSION_DRIVER
+        value: database
+      - key: CACHE_DRIVER
+        value: database
+      - key: LOG_CHANNEL
+        value: stack
