@@ -85,9 +85,8 @@ php artisan route:clear\n\
 php artisan view:clear\n\
 php artisan cache:clear\n\
 \n\
-# Ejecutar comandos de Laravel\n\
+# Solo cachear config, NO rutas (para debugging)\n\
 php artisan config:cache\n\
-php artisan route:cache\n\
 php artisan migrate --force\n\
 \n\
 # Iniciar Apache\n\
