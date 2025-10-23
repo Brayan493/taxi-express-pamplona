@@ -63,18 +63,25 @@ RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available
 # Habilitar AllowOverride All para que funcione el .htaccess
 RUN sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
 
-# Configurar Apache para usar el puerto dinámico de Render
-RUN sed -i 's/Listen 80/Listen ${PORT:-80}/' /etc/apache2/ports.conf
-RUN sed -i 's/:80/:${PORT:-80}/' /etc/apache2/sites-available/000-default.conf
+# Exponer puerto (Render usa 10000 por defecto para servicios web)
+EXPOSE 10000
 
-# Exponer puerto dinámico
-EXPOSE ${PORT:-80}
-
-# Script de inicio que ejecuta migraciones y arranca Apache
+# Script de inicio que configura el puerto dinámico, ejecuta migraciones y arranca Apache
 RUN echo '#!/bin/bash\n\
+set -e\n\
+\n\
+# Configurar el puerto de Apache según la variable PORT de Render\n\
+if [ -n "$PORT" ]; then\n\
+  sed -i "s/Listen 80/Listen $PORT/" /etc/apache2/ports.conf\n\
+  sed -i "s/:80/:$PORT/" /etc/apache2/sites-available/000-default.conf\n\
+fi\n\
+\n\
+# Ejecutar comandos de Laravel\n\
 php artisan config:cache\n\
 php artisan route:cache\n\
 php artisan migrate --force\n\
+\n\
+# Iniciar Apache\n\
 apache2-foreground' > /start.sh && chmod +x /start.sh
 
 # Comando para iniciar
