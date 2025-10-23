@@ -38,11 +38,7 @@ WORKDIR /var/www/html
 # Copiar archivos del proyecto
 COPY . /var/www/html
 
-# Instalar dependencias de Composer (sin dependencias de desarrollo)
-RUN composer install --no-dev --optimize-autoloader --no-interaction
-
-# Los assets ya están compilados y commiteados en el repositorio
-# No es necesario ejecutar npm run build
+php artisan config:clear && php artisan route:clear && php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=10000
 
 # Crear directorios de caché y darles permisos
 RUN mkdir -p storage/framework/sessions \
