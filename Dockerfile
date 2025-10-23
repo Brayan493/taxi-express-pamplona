@@ -1,7 +1,7 @@
 # Usa PHP 8.2 con Apache
 FROM php:8.2-apache
 
-# Instalar dependencias del sistema y Node.js
+# Instalar dependencias del sistema
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -12,8 +12,6 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     zip \
     unzip \
-    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Instalar extensiones de PHP requeridas por Laravel
@@ -43,8 +41,8 @@ COPY . /var/www/html
 # Instalar dependencias de Composer (sin dependencias de desarrollo)
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# Instalar dependencias de Node.js y compilar assets con Vite
-RUN npm install && npm run build
+# Los assets ya están compilados y commiteados en el repositorio
+# No es necesario ejecutar npm run build
 
 # Crear directorios de caché y darles permisos
 RUN mkdir -p storage/framework/sessions \
