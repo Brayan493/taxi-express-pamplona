@@ -35,7 +35,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Copiar archivos del proyecto
 COPY . /var/www/html
 
-# Instalar dependencias de Composer (sin dev para producción)
+# Instalar dependencias de Composer
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 # Instalar dependencias de Node y compilar assets
@@ -46,27 +46,14 @@ RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage \
     && chmod -R 755 /var/www/html/bootstrap/cache
 
-# Habilitar mod_rewrite de Apache para Laravel
+# Habilitar mod_rewrite de Apache
 RUN a2enmod rewrite
 
 # Configurar Apache para servir desde /public
 RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf \
     && sed -i 's!AllowOverride None!AllowOverride All!g' /etc/apache2/apache2.conf
 
-# Crear archivo .htaccess si no existe
-RUN if [ ! -f /var/www/html/public/.htaccess ]; then \
-    echo '<IfModule mod_rewrite.c>' > /var/www/html/public/.htaccess && \
-    echo '    <IfModule mod_negotiation.c>' >> /var/www/html/public/.htaccess && \
-    echo '        Options -MultiViews -Indexes' >> /var/www/html/public/.htaccess && \
-    echo '    </IfModule>' >> /var/www/html/public/.htaccess && \
-    echo '    RewriteEngine On' >> /var/www/html/public/.htaccess && \
-    echo '    RewriteCond %{REQUEST_FILENAME} !-d' >> /var/www/html/public/.htaccess && \
-    echo '    RewriteCond %{REQUEST_FILENAME} !-f' >> /var/www/html/public/.htaccess && \
-    echo '    RewriteRule ^ index.php [L]' >> /var/www/html/public/.htaccess && \
-    echo '</IfModule>' >> /var/www/html/public/.htaccess; \
-    fi
-
-# Exponer puerto 10000 (Render usa este puerto)
+# Exponer puerto 10000
 EXPOSE 10000
 
 # Script de inicio
