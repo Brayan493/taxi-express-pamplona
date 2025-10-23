@@ -1,5 +1,8 @@
-# Usa PHP 8.2 con Apache
+# Usar PHP 8.2 con Apache
 FROM php:8.2-apache
+
+# Establecer directorio de trabajo
+WORKDIR /var/www/html
 
 # Instalar dependencias del sistema
 RUN apt-get update && apt-get install -y \
@@ -9,16 +12,16 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     libzip-dev \
-    libpq-dev \
     zip \
     unzip \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    nodejs \
+    npm \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# Instalar extensiones de PHP requeridas por Laravel
+# Instalar extensiones de PHP necesarias para Laravel
 RUN docker-php-ext-install \
     pdo_mysql \
-    pdo_pgsql \
-    pgsql \
     mbstring \
     exif \
     pcntl \
@@ -29,64 +32,52 @@ RUN docker-php-ext-install \
 # Instalar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Habilitar mod_rewrite de Apache (necesario para Laravel)
-RUN a2enmod rewrite
-
-# Establecer directorio de trabajo
-WORKDIR /var/www/html
-
 # Copiar archivos del proyecto
 COPY . /var/www/html
 
-php artisan config:clear && php artisan route:clear && php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=10000
+# Instalar dependencias de Composer (sin dev para producción)
+RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# Crear directorios de caché y darles permisos
-RUN mkdir -p storage/framework/sessions \
-    storage/framework/views \
-    storage/framework/cache \
-    storage/logs \
-    bootstrap/cache
+# Instalar dependencias de Node y compilar assets
+RUN npm install && npm run build
 
-# Dar permisos a directorios críticos
-RUN chown -R www-data:www-data \
-    /var/www/html/storage \
-    /var/www/html/bootstrap/cache
+# Configurar permisos para Laravel
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html/storage \
+    && chmod -R 755 /var/www/html/bootstrap/cache
 
-RUN chmod -R 775 \
-    /var/www/html/storage \
-    /var/www/html/bootstrap/cache
+# Habilitar mod_rewrite de Apache para Laravel
+RUN a2enmod rewrite
 
-# Configurar Apache para que apunte a la carpeta public de Laravel
-RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
+# Configurar Apache para servir desde /public
+RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf \
+    && sed -i 's!AllowOverride None!AllowOverride All!g' /etc/apache2/apache2.conf
 
-# Habilitar AllowOverride All para que funcione el .htaccess
-RUN sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
+# Crear archivo .htaccess si no existe
+RUN if [ ! -f /var/www/html/public/.htaccess ]; then \
+    echo '<IfModule mod_rewrite.c>' > /var/www/html/public/.htaccess && \
+    echo '    <IfModule mod_negotiation.c>' >> /var/www/html/public/.htaccess && \
+    echo '        Options -MultiViews -Indexes' >> /var/www/html/public/.htaccess && \
+    echo '    </IfModule>' >> /var/www/html/public/.htaccess && \
+    echo '    RewriteEngine On' >> /var/www/html/public/.htaccess && \
+    echo '    RewriteCond %{REQUEST_FILENAME} !-d' >> /var/www/html/public/.htaccess && \
+    echo '    RewriteCond %{REQUEST_FILENAME} !-f' >> /var/www/html/public/.htaccess && \
+    echo '    RewriteRule ^ index.php [L]' >> /var/www/html/public/.htaccess && \
+    echo '</IfModule>' >> /var/www/html/public/.htaccess; \
+    fi
 
-# Exponer puerto (Render usa 10000 por defecto para servicios web)
+# Exponer puerto 10000 (Render usa este puerto)
 EXPOSE 10000
 
-# Script de inicio que configura el puerto dinámico, ejecuta migraciones y arranca Apache
+# Script de inicio
 RUN echo '#!/bin/bash\n\
-set -e\n\
-\n\
-# Configurar el puerto de Apache según la variable PORT de Render\n\
-if [ -n "$PORT" ]; then\n\
-  sed -i "s/Listen 80/Listen $PORT/" /etc/apache2/ports.conf\n\
-  sed -i "s/:80/:$PORT/" /etc/apache2/sites-available/000-default.conf\n\
-fi\n\
-\n\
-# Limpiar cachés de Laravel\n\
 php artisan config:clear\n\
 php artisan route:clear\n\
 php artisan view:clear\n\
 php artisan cache:clear\n\
-\n\
-# Solo cachear config, NO rutas (para debugging)\n\
-php artisan config:cache\n\
 php artisan migrate --force\n\
-\n\
-# Iniciar Apache\n\
-apache2-foreground' > /start.sh && chmod +x /start.sh
+apache2-foreground' > /start.sh \
+    && chmod +x /start.sh
 
-# Comando para iniciar
+# Comando de inicio
 CMD ["/start.sh"]
