@@ -1,7 +1,7 @@
 # Usa PHP 8.2 con Apache
 FROM php:8.2-apache
 
-# Instalar dependencias del sistema y Node.js
+# Instalar dependencias del sistema
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -12,8 +12,6 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     zip \
     unzip \
-    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Instalar extensiones de PHP requeridas por Laravel
@@ -43,8 +41,8 @@ COPY . /var/www/html
 # Instalar dependencias de Composer (sin dependencias de desarrollo)
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# Instalar dependencias de Node.js y compilar assets con Vite
-RUN npm install && npm run build
+# Los assets ya están compilados y commiteados en el repositorio
+# No es necesario ejecutar npm run build
 
 # Crear directorios de caché y darles permisos
 RUN mkdir -p storage/framework/sessions \
@@ -80,6 +78,12 @@ if [ -n "$PORT" ]; then\n\
   sed -i "s/Listen 80/Listen $PORT/" /etc/apache2/ports.conf\n\
   sed -i "s/:80/:$PORT/" /etc/apache2/sites-available/000-default.conf\n\
 fi\n\
+\n\
+# Limpiar cachés de Laravel\n\
+php artisan config:clear\n\
+php artisan route:clear\n\
+php artisan view:clear\n\
+php artisan cache:clear\n\
 \n\
 # Ejecutar comandos de Laravel\n\
 php artisan config:cache\n\
