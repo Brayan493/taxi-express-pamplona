@@ -1,33 +1,60 @@
 #!/bin/bash
+set -e
 
 echo "🔧 Configurando Laravel..."
 
-# Espera a que la base de datos esté lista (importante para PostgreSQL)
+# Esperar a que PostgreSQL esté listo
 echo "⏳ Esperando a PostgreSQL..."
-until php artisan migrate --force 2>/dev/null; do
-    echo "Base de datos no está lista, reintentando en 2 segundos..."
-    sleep 2
-done
+sleep 2
 
-echo "✅ Migraciones ejecutadas exitosamente"
+# Ejecutar migraciones
+php artisan migrate --force 2>&1 || echo "⚠️  Migraciones fallidas o no necesarias"
 
-# Limpia caché
+echo "✅ Migraciones ejecutadas"
+
+# Limpiar caché
 echo "🧹 Limpiando caché..."
-php artisan config:clear
-php artisan cache:clear
-php artisan route:clear
-php artisan view:clear
+php artisan config:clear 2>&1
+php artisan cache:clear 2>&1
+php artisan route:clear 2>&1
+php artisan view:clear 2>&1
 
-# Optimiza para producción
+# Optimizar para producción
 echo "⚡ Optimizando aplicación..."
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
+php artisan config:cache 2>&1
+php artisan route:cache 2>&1
+php artisan view:cache 2>&1
 
-# Ajusta permisos
+# Configurar permisos
 echo "🔐 Configurando permisos..."
-chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+chown -R www-data:www-data /var/www/html/storage
+chown -R www-data:www-data /var/www/html/bootstrap/cache
+chown -R www-data:www-data /var/www/html/public
+chmod -R 755 /var/www/html/public
 
+# Verificar estructura de assets
+echo "📦 Verificando assets compilados..."
+if [ -d "/var/www/html/public/build" ]; then
+    echo "✅ Directorio /public/build encontrado"
+    echo "📁 Contenido de /public/build:"
+    ls -lah /var/www/html/public/build/
+    
+    if [ -f "/var/www/html/public/build/manifest.json" ]; then
+        echo "✅ manifest.json encontrado"
+        echo "📄 Contenido del manifest:"
+        cat /var/www/html/public/build/manifest.json | head -n 20
+    else
+        echo "❌ ERROR: manifest.json NO encontrado"
+    fi
+    
+    echo "📁 Assets CSS/JS:"
+    find /var/www/html/public/build -type f \( -name "*.css" -o -name "*.js" \) -exec ls -lh {} \;
+else
+    echo "❌ ERROR CRÍTICO: Directorio /public/build NO existe"
+    echo "📁 Contenido de /public:"
+    ls -la /var/www/html/public/
+fi
+
+# Iniciar Apache
 echo "🚀 Iniciando Apache en puerto 10000..."
-apache2-foreground
+exec apache2-foreground

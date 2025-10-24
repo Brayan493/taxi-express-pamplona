@@ -8,4 +8,15 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+      build: {
+        manifest: 'manifest.json',
+        outDir: 'public/build',
+        assetsDir: 'assets',
+        emptyOutDir: true,
+        rollupOptions: {
+            output: {
+                manualChunks: undefined,
+            },
+        },
+    },
 });
