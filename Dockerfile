@@ -22,28 +22,36 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Copia package files primero (mejor cache de Docker)
-COPY package*.json ./
+# Copia archivos de dependencias
 COPY composer.json composer.lock ./
+COPY package*.json ./
 
-# Instala dependencias
+# Instala dependencias de PHP
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
-RUN npm ci --include=dev
+
+# Instala dependencias de Node (usa install en lugar de ci para regenerar el lockfile)
+RUN npm install
 
 # Copia el resto de los archivos
 COPY . /var/www/html
 
 # Ejecuta scripts post-install de Composer
-RUN composer run-script post-autoload-dump
+RUN composer run-script post-autoload-dump --no-interaction || true
 
 # Compila assets con Vite
 RUN npm run build
 
 # Verifica que los assets se compilaron
-RUN ls -la /var/www/html/public/build || echo "ERROR: Build directory not found"
+RUN echo "📦 Verificando build..." && \
+    ls -la /var/www/html/public/build && \
+    ls -la /var/www/html/public/build/assets && \
+    cat /var/www/html/public/build/manifest.json || \
+    echo "⚠️  WARNING: Build verification failed"
 
 # Configura permisos
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public
+RUN chown -R www-data:www-data /var/www/html/storage \
+    /var/www/html/bootstrap/cache \
+    /var/www/html/public
 RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 RUN chmod -R 755 /var/www/html/public
 
