@@ -22,33 +22,45 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Copia archivos de dependencias
+# Copia SOLO los archivos de dependencias primero (para mejor cache)
 COPY composer.json composer.lock ./
 COPY package*.json ./
 
 # Instala dependencias de PHP
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
 
-# Instala dependencias de Node (usa install en lugar de ci para regenerar el lockfile)
+# Instala dependencias de Node
 RUN npm install
 
-# Copia el resto de los archivos
+# Ahora copia TODO el código fuente
 COPY . /var/www/html
 
 # Ejecuta scripts post-install de Composer
 RUN composer run-script post-autoload-dump --no-interaction || true
 
-# Compila assets con Vite
+# Compila assets con Vite - CRÍTICO: Esto genera public/build
 RUN npm run build
 
-# Verifica que los assets se compilaron
-RUN echo "📦 Verificando build..." && \
-    ls -la /var/www/html/public/build && \
-    ls -la /var/www/html/public/build/assets && \
-    cat /var/www/html/public/build/manifest.json || \
-    echo "⚠️  WARNING: Build verification failed"
+# VERIFICACIÓN DETALLADA de los assets
+RUN echo "======================================" && \
+    echo "📦 VERIFICACIÓN DE BUILD" && \
+    echo "======================================" && \
+    ls -lah public/ && \
+    echo "" && \
+    echo "📁 Contenido de public/build:" && \
+    ls -lah public/build/ && \
+    echo "" && \
+    echo "📄 manifest.json:" && \
+    cat public/build/manifest.json && \
+    echo "" && \
+    echo "🎨 Archivos CSS:" && \
+    find public/build -name "*.css" -exec ls -lh {} \; && \
+    echo "" && \
+    echo "⚡ Archivos JS:" && \
+    find public/build -name "*.js" -exec ls -lh {} \; && \
+    echo "======================================"
 
-# Configura permisos
+# Configura permisos - INCLUYENDO public/build
 RUN chown -R www-data:www-data /var/www/html/storage \
     /var/www/html/bootstrap/cache \
     /var/www/html/public

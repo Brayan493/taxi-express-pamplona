@@ -12,7 +12,5 @@ storage/logs/*
 bootstrap/cache/*
 public/hot
 public/storage
-public/build
 npm-debug.log
 yarn-error.log
-package-lock.json
