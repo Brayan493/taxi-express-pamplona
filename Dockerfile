@@ -26,11 +26,12 @@ WORKDIR /var/www/html
 # Copia archivos de dependencias
 COPY composer.json composer.lock package*.json ./
 
-# Instala dependencias de PHP
+# Instala dependencias de PHP (sin dev)
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
 
-# Instala dependencias de Node
-RUN npm ci --only=production
+# ⚡ CAMBIO CRÍTICO: Instalar TODAS las dependencias de Node (incluidas devDependencies)
+# porque Vite está en devDependencies y lo necesitamos para compilar
+RUN npm ci
 
 # Copia todo el código fuente
 COPY . /var/www/html
@@ -40,6 +41,9 @@ RUN composer run-script post-autoload-dump --no-interaction || true
 
 # Compila assets con Vite
 RUN npm run build
+
+# 🧹 OPCIONAL: Limpia node_modules después del build para reducir tamaño de imagen
+RUN rm -rf node_modules && npm ci --omit=dev
 
 # Verificación de build
 RUN echo "======================================" && \
