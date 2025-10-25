@@ -10,16 +10,20 @@ if [ ! -d "/var/www/html/public/build" ]; then
 fi
 
 echo "✅ Directorio public/build encontrado"
-echo "📦 Contenido de public/build:"
-ls -lah /var/www/html/public/build/ || true
 
-# SIEMPRE limpiar cachés al iniciar
-echo "🧹 Limpiando cachés..."
-php artisan optimize:clear || true
+# LIMPIEZA AGRESIVA - Eliminar archivos de caché físicamente
+echo "🧹 Limpiando cachés físicamente..."
+rm -rf /var/www/html/storage/framework/views/*.php 2>/dev/null || true
+rm -rf /var/www/html/storage/framework/cache/data/* 2>/dev/null || true
+rm -rf /var/www/html/bootstrap/cache/*.php 2>/dev/null || true
+
+# Limpiar cachés de Laravel
+echo "🧹 Limpiando cachés de Laravel..."
+php artisan view:clear || true
 php artisan config:clear || true
 php artisan cache:clear || true
-php artisan view:clear || true
 php artisan route:clear || true
+php artisan optimize:clear || true
 
 # Verificar APP_KEY
 if [ -z "$APP_KEY" ]; then
@@ -31,12 +35,13 @@ fi
 echo "🔗 Creando enlaces simbólicos..."
 php artisan storage:link 2>/dev/null || echo "Storage link ya existe"
 
-# Optimizar para producción
-if [ "$APP_ENV" = "production" ]; then
+# NO CACHEAR en desarrollo - solo en producción
+if [ "$APP_ENV" = "production" ] && [ "$APP_DEBUG" != "true" ]; then
     echo "⚙️  Optimizando para producción..."
     php artisan config:cache
     php artisan route:cache
-    php artisan view:cache
+    # NO cachear vistas si hay problemas
+    # php artisan view:cache
 fi
 
 # Migraciones opcionales
