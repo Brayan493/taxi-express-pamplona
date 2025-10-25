@@ -3,33 +3,35 @@ set -e
 
 echo "🚀 Iniciando aplicación Laravel..."
 
-# Verificar que existan los archivos compilados
+# Verificar assets
 if [ ! -d "/var/www/html/public/build" ]; then
     echo "❌ ERROR: public/build no existe!"
     exit 1
 fi
 
 echo "✅ Directorio public/build encontrado"
+echo "📦 Contenido de public/build:"
+ls -lah /var/www/html/public/build/ || true
 
-# Limpiar cachés de Laravel
+# SIEMPRE limpiar cachés al iniciar
 echo "🧹 Limpiando cachés..."
+php artisan optimize:clear || true
 php artisan config:clear || true
 php artisan cache:clear || true
 php artisan view:clear || true
 php artisan route:clear || true
 
-# Verificar si existe APP_KEY
+# Verificar APP_KEY
 if [ -z "$APP_KEY" ]; then
     echo "⚠️  WARNING: APP_KEY no está configurada"
-    echo "Generando una temporal..."
     php artisan key:generate --force
 fi
 
-# Crear enlaces simbólicos de storage
+# Crear enlaces simbólicos
 echo "🔗 Creando enlaces simbólicos..."
-php artisan storage:link || true
+php artisan storage:link 2>/dev/null || echo "Storage link ya existe"
 
-# Optimizar para producción si está en production
+# Optimizar para producción
 if [ "$APP_ENV" = "production" ]; then
     echo "⚙️  Optimizando para producción..."
     php artisan config:cache
@@ -37,13 +39,12 @@ if [ "$APP_ENV" = "production" ]; then
     php artisan view:cache
 fi
 
-# Migrar base de datos si está configurada
+# Migraciones opcionales
 if [ "$RUN_MIGRATIONS" = "true" ]; then
     echo "🗄️  Ejecutando migraciones..."
-    php artisan migrate --force || echo "⚠️  Migraciones fallaron, continuando..."
+    php artisan migrate --force || echo "⚠️  Migraciones fallaron"
 fi
 
-# Mostrar información del sistema
 echo "📊 Información de la aplicación:"
 php artisan about || true
 
@@ -52,5 +53,5 @@ echo "✅ Inicialización completada"
 echo "🌐 Servidor escuchando en puerto 10000"
 echo ""
 
-# Iniciar Apache en primer plano
+# Iniciar Apache
 exec apache2-foreground

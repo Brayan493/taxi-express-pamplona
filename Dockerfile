@@ -46,29 +46,37 @@ RUN npm run build
 RUN rm -rf node_modules && npm ci --omit=dev
 
 # Verificación de build
+# ... después de RUN npm run build
+
+# Verificación MÁS detallada
 RUN echo "======================================" && \
-    echo "📦 VERIFICACIÓN DE BUILD" && \
+    echo "📦 VERIFICACIÓN DETALLADA DE BUILD" && \
     echo "======================================" && \
-    ls -lah public/ && \
     echo "" && \
-    echo "📁 Contenido de public/build:" && \
+    echo "📂 Estructura de public/:" && \
+    tree -L 2 public/ || ls -R public/ && \
+    echo "" && \
+    echo "📁 Contenido de public/build/:" && \
     ls -lah public/build/ && \
     echo "" && \
     if [ -f "public/build/manifest.json" ]; then \
-        echo "✅ manifest.json encontrado:"; \
-        cat public/build/manifest.json; \
+        echo "✅ manifest.json encontrado:" && \
+        cat public/build/manifest.json | head -20; \
     else \
-        echo "❌ manifest.json NO encontrado!"; \
+        echo "❌ manifest.json NO encontrado!" && \
         exit 1; \
     fi && \
     echo "" && \
-    echo "🎨 Archivos CSS:" && \
-    find public/build -name "*.css" -exec ls -lh {} \; && \
+    echo "🎨 Archivos CSS encontrados:" && \
+    find public/build -name "*.css" -ls && \
     echo "" && \
-    echo "⚡ Archivos JS:" && \
-    find public/build -name "*.js" -exec ls -lh {} \; && \
+    echo "⚡ Archivos JS encontrados:" && \
+    find public/build -name "*.js" -ls && \
+    echo "" && \
+    echo "📝 Total de archivos en build:" && \
+    find public/build -type f | wc -l && \
     echo "======================================"
-
+    
 # Configura permisos
 RUN chown -R www-data:www-data \
     /var/www/html/storage \
