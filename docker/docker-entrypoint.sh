@@ -1,60 +1,56 @@
 #!/bin/bash
 set -e
 
-echo "🔧 Configurando Laravel..."
+echo "🚀 Iniciando aplicación Laravel..."
 
-# Esperar a que PostgreSQL esté listo
-echo "⏳ Esperando a PostgreSQL..."
-sleep 2
-
-# Ejecutar migraciones
-php artisan migrate --force 2>&1 || echo "⚠️  Migraciones fallidas o no necesarias"
-
-echo "✅ Migraciones ejecutadas"
-
-# Limpiar caché
-echo "🧹 Limpiando caché..."
-php artisan config:clear 2>&1
-php artisan cache:clear 2>&1
-php artisan route:clear 2>&1
-php artisan view:clear 2>&1
-
-# Optimizar para producción
-echo "⚡ Optimizando aplicación..."
-php artisan config:cache 2>&1
-php artisan route:cache 2>&1
-php artisan view:cache 2>&1
-
-# Configurar permisos
-echo "🔐 Configurando permisos..."
-chown -R www-data:www-data /var/www/html/storage
-chown -R www-data:www-data /var/www/html/bootstrap/cache
-chown -R www-data:www-data /var/www/html/public
-chmod -R 755 /var/www/html/public
-
-# Verificar estructura de assets
-echo "📦 Verificando assets compilados..."
-if [ -d "/var/www/html/public/build" ]; then
-    echo "✅ Directorio /public/build encontrado"
-    echo "📁 Contenido de /public/build:"
-    ls -lah /var/www/html/public/build/
-    
-    if [ -f "/var/www/html/public/build/manifest.json" ]; then
-        echo "✅ manifest.json encontrado"
-        echo "📄 Contenido del manifest:"
-        cat /var/www/html/public/build/manifest.json | head -n 20
-    else
-        echo "❌ ERROR: manifest.json NO encontrado"
-    fi
-    
-    echo "📁 Assets CSS/JS:"
-    find /var/www/html/public/build -type f \( -name "*.css" -o -name "*.js" \) -exec ls -lh {} \;
-else
-    echo "❌ ERROR CRÍTICO: Directorio /public/build NO existe"
-    echo "📁 Contenido de /public:"
-    ls -la /var/www/html/public/
+# Verificar que existan los archivos compilados
+if [ ! -d "/var/www/html/public/build" ]; then
+    echo "❌ ERROR: public/build no existe!"
+    exit 1
 fi
 
-# Iniciar Apache
-echo "🚀 Iniciando Apache en puerto 10000..."
+echo "✅ Directorio public/build encontrado"
+
+# Limpiar cachés de Laravel
+echo "🧹 Limpiando cachés..."
+php artisan config:clear || true
+php artisan cache:clear || true
+php artisan view:clear || true
+php artisan route:clear || true
+
+# Verificar si existe APP_KEY
+if [ -z "$APP_KEY" ]; then
+    echo "⚠️  WARNING: APP_KEY no está configurada"
+    echo "Generando una temporal..."
+    php artisan key:generate --force
+fi
+
+# Crear enlaces simbólicos de storage
+echo "🔗 Creando enlaces simbólicos..."
+php artisan storage:link || true
+
+# Optimizar para producción si está en production
+if [ "$APP_ENV" = "production" ]; then
+    echo "⚙️  Optimizando para producción..."
+    php artisan config:cache
+    php artisan route:cache
+    php artisan view:cache
+fi
+
+# Migrar base de datos si está configurada
+if [ "$RUN_MIGRATIONS" = "true" ]; then
+    echo "🗄️  Ejecutando migraciones..."
+    php artisan migrate --force || echo "⚠️  Migraciones fallaron, continuando..."
+fi
+
+# Mostrar información del sistema
+echo "📊 Información de la aplicación:"
+php artisan about || true
+
+echo ""
+echo "✅ Inicialización completada"
+echo "🌐 Servidor escuchando en puerto 10000"
+echo ""
+
+# Iniciar Apache en primer plano
 exec apache2-foreground
