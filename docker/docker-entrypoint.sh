@@ -1,61 +1,82 @@
 #!/bin/bash
 set -e
 
-echo "🚀 Iniciando aplicación Laravel..."
+echo "🚀 Iniciando aplicación Laravel en Render Free..."
 
-# Verificar assets
+# Verificar assets compilados
 if [ ! -d "/var/www/html/public/build" ]; then
     echo "❌ ERROR: public/build no existe!"
     exit 1
 fi
 
-echo "✅ Directorio public/build encontrado"
+echo "✅ Assets compilados encontrados:"
+ls -lah /var/www/html/public/build/ | head -10
 
-# LIMPIEZA AGRESIVA - Eliminar archivos de caché físicamente
-echo "🧹 Limpiando cachés físicamente..."
-rm -rf /var/www/html/storage/framework/views/*.php 2>/dev/null || true
-rm -rf /var/www/html/storage/framework/cache/data/* 2>/dev/null || true
-rm -rf /var/www/html/bootstrap/cache/*.php 2>/dev/null || true
+# PERMISOS COMPLETOS
+echo "🔐 Configurando permisos..."
+chown -R www-data:www-data /var/www/html/storage
+chown -R www-data:www-data /var/www/html/bootstrap/cache
+chmod -R 777 /var/www/html/storage
+chmod -R 777 /var/www/html/bootstrap/cache
 
-# Limpiar cachés de Laravel
-echo "🧹 Limpiando cachés de Laravel..."
-php artisan view:clear || true
-php artisan config:clear || true
-php artisan cache:clear || true
-php artisan route:clear || true
-php artisan optimize:clear || true
+# DESTRUCCIÓN NUCLEAR DE CACHÉS
+echo "💣 ELIMINACIÓN TOTAL DE CACHÉS..."
 
-# Verificar APP_KEY
+# Eliminar TODOS los archivos de framework
+find /var/www/html/storage/framework/views -type f -delete 2>/dev/null || true
+find /var/www/html/storage/framework/cache -type f -delete 2>/dev/null || true
+find /var/www/html/bootstrap/cache -type f -name "*.php" -delete 2>/dev/null || true
+
+# Recrear estructura
+mkdir -p /var/www/html/storage/framework/{views,cache/data,sessions,testing}
+chmod -R 777 /var/www/html/storage/framework
+
+# Artisan clear TODO
+php artisan optimize:clear 2>/dev/null || true
+php artisan view:clear 2>/dev/null || true
+php artisan config:clear 2>/dev/null || true
+php artisan cache:clear 2>/dev/null || true
+php artisan route:clear 2>/dev/null || true
+php artisan event:clear 2>/dev/null || true
+
+echo "✅ TODOS los cachés eliminados"
+
+# Verificar que views esté vacío
+VIEWS_COUNT=$(find /var/www/html/storage/framework/views -type f 2>/dev/null | wc -l)
+echo "📊 Archivos en views/: $VIEWS_COUNT (debe ser 0)"
+
+# APP_KEY
 if [ -z "$APP_KEY" ]; then
-    echo "⚠️  WARNING: APP_KEY no está configurada"
+    echo "⚠️  Generando APP_KEY..."
     php artisan key:generate --force
 fi
 
-# Crear enlaces simbólicos
-echo "🔗 Creando enlaces simbólicos..."
-php artisan storage:link 2>/dev/null || echo "Storage link ya existe"
+# Storage link
+php artisan storage:link 2>/dev/null || echo "Storage link existe"
 
-# NO CACHEAR en desarrollo - solo en producción
-if [ "$APP_ENV" = "production" ] && [ "$APP_DEBUG" != "true" ]; then
-    echo "⚙️  Optimizando para producción..."
-    php artisan config:cache
-    php artisan route:cache
-    # NO cachear vistas si hay problemas
-    # php artisan view:cache
-fi
-
-# Migraciones opcionales
+# Migraciones si está configurado
 if [ "$RUN_MIGRATIONS" = "true" ]; then
     echo "🗄️  Ejecutando migraciones..."
-    php artisan migrate --force || echo "⚠️  Migraciones fallaron"
+    php artisan migrate --force || echo "Migraciones fallaron"
 fi
 
+# NUNCA CACHEAR EN RENDER FREE
+echo "⚠️  RENDER FREE - MODO SIN CACHÉS"
+echo "   APP_ENV: ${APP_ENV}"
+echo "   APP_DEBUG: ${APP_DEBUG}"
+
+# NO ejecutar config:cache ni route:cache ni view:cache
+echo "   ✓ Config: NO CACHEADA"
+echo "   ✓ Routes: NO CACHEADAS"
+echo "   ✓ Views: NO CACHEADAS"
+
+echo ""
 echo "📊 Información de la aplicación:"
 php artisan about || true
 
 echo ""
 echo "✅ Inicialización completada"
-echo "🌐 Servidor escuchando en puerto 10000"
+echo "🌐 Servidor en puerto 10000"
 echo ""
 
 # Iniciar Apache
