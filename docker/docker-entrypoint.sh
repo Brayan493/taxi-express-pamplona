@@ -5,24 +5,27 @@ echo "🚀 Iniciando aplicación Laravel en Render..."
 
 cd /var/www/html
 
-# ✅ Permisos correctos (más seguros)
+# ✅ Asegurar estructura del storage
+mkdir -p storage/framework/{cache,data,sessions,views}
+
+# ✅ Permisos correctos
 echo "🔐 Configurando permisos..."
 chown -R www-data:www-data storage bootstrap/cache
 chmod -R 775 storage bootstrap/cache
 
-# ✅ Crear enlaces de storage si no existen
+# ✅ Crear enlaces de storage
 if [ ! -L "public/storage" ]; then
     echo "🔗 Creando storage link..."
     php artisan storage:link || true
 fi
 
-# ✅ Limpiar cachés sin eliminar archivos del framework
+# ✅ Limpiar cachés básicos
 echo "💣 Limpiando cachés..."
 php artisan optimize:clear || true
 
 # ✅ APP_KEY si falta
 if ! grep -q "APP_KEY=base64:" /var/www/html/.env 2>/dev/null; then
-    echo "⚠️ APP_KEY faltante → Generando..."
+    echo "⚠️ Generando APP_KEY..."
     php artisan key:generate --force || true
 fi
 
@@ -32,8 +35,7 @@ if [ "${RUN_MIGRATIONS}" = "true" ]; then
     php artisan migrate --force || echo "⚠️ Migraciones fallaron"
 fi
 
-# ✅ No hacer config:cache en Render Free
-echo "⚠️ Render Free: MODO SIN CACHÉS"
+echo "⚠️ Render Free: Cachés desactivados"
 echo "   ✓ Config"
 echo "   ✓ Rutas"
 echo "   ✓ Views"
@@ -43,8 +45,4 @@ echo "📊 Estado de la aplicación:"
 php artisan about || true
 
 echo ""
-echo "✅ Inicialización completada correctamente"
-echo "🌐 Apache corriendo en puerto 10000"
-echo ""
-
-exec apache2-foreground
+echo "✅ Inicialización

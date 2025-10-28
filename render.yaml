@@ -3,15 +3,14 @@ services:
     name: TAXI-EXPRESS
     env: php
     plan: free
+
     buildCommand: |
-     composer install --no-dev --optimize-autoloader
-    startCommand: php artisan serve --host=0.0.0.0 --port=10000
-      php artisan key:generate --ansi
-      php artisan migrate:fresh --force
-      php artisan config:clear
-      php artisan route:clear
-      php artisan view:clear
-    startCommand: heroku-php-apache2 public/
+      composer install --no-dev --optimize-autoloader
+      npm install
+      npm run build
+
+    startCommand: ./docker-entrypoint.sh
+
     envVars:
       - key: APP_KEY
         sync: false
