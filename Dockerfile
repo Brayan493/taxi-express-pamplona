@@ -1,6 +1,6 @@
 FROM php:8.2-apache
 
-# Instala Node.js 20 y dependencias
+# Instalar Node.js 20 + dependencias necesarias para Laravel + PostgreSQL
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get update && apt-get install -y \
     nodejs git curl \
@@ -13,37 +13,51 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Copia primero archivos de dependencias (mejor cacheo)
+# Copiar solo archivos de dependencias (cache más eficiente)
 COPY composer.json composer.lock package*.json ./
 
-# Instala dependencias PHP sin-dev para producción
+# Instalar dependencias PHP (producción)
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# Instala dependencias Node (solo para compilar)
+# Instalar dependencias de Node para compilar assets
 RUN npm install
 
-# Copia el código fuente
+# Copiar todo el proyecto
 COPY . .
 
-# Compilar assets Vite
+# Compilar assets con Vite
 RUN npm run build
 
-# Limpiar node_modules (NO se necesita en producción)
+# Eliminar node_modules para producción
 RUN rm -rf node_modules
 
-# Permisos correctos para Laravel
+# Permisos correctos de Laravel
 RUN chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
-# Configuración Apache
+# Activar módulos necesarios de Apache
 RUN a2enmod rewrite headers expires
 
-# Puerto para Render
+# Configurar Apache para Render → expone puerto 10000
 RUN sed -i 's/Listen 80/Listen 10000/' /etc/apache2/ports.conf
+
+# Reemplazar VirtualHost por uno compatible en producción
+RUN echo '<VirtualHost *:10000>
+    ServerName taxi-express-ywvu.onrender.com
+    DocumentRoot /var/www/html/public
+
+    <Directory /var/www/html/public>
+        Options -Indexes +FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    ErrorLog \${APACHE_LOG_DIR}/error.log
+    CustomLog \${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>' > /etc/apache2/sites-available/000-default.conf
 
 EXPOSE 10000
 
-# Entrypoint que limpia cachés en cada deploy
 COPY docker/docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
