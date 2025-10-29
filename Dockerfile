@@ -64,15 +64,15 @@ WORKDIR /var/www/html
 # Copiar aplicación desde el build
 COPY --from=build /app ./
 
-# Copiar configuración de Apache
-COPY apache-config/000-default.conf /etc/apache2/sites-available/000-default.conf
+# Copiar configuración de Apache desde la carpeta docker/
+COPY docker/000-default.conf /etc/apache2/sites-available/000-default.conf
 
 # Configurar permisos
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Copiar y dar permisos al entrypoint
-COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+# Copiar y dar permisos al entrypoint desde la carpeta docker/
+COPY docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 # El puerto será dinámico desde la variable de entorno PORT
