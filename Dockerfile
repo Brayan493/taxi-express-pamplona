@@ -1,67 +1,81 @@
-FROM php:8.2-apache
+# Etapa 1: Build de dependencias
+FROM php:8.2-apache as build
 
-# Instalar Node.js 20 + dependencias necesarias para Laravel + PostgreSQL
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get update && apt-get install -y \
-    nodejs git curl \
-    libpng-dev libonig-dev libxml2-dev libpq-dev libzip-dev \
-    zip unzip \
-    && docker-php-ext-install pdo_pgsql pgsql mbstring exif pcntl bcmath gd zip
+# Instalar dependencias del sistema
+RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
+    libpq-dev \
+    libzip-dev \
+    libpng-dev \
+    nodejs \
+    npm \
+    && rm -rf /var/lib/apt/lists/*
 
-# Instalar Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# Instalar extensiones de PHP necesarias
+RUN docker-php-ext-install pdo pdo_pgsql zip gd
 
-WORKDIR /var/www/html
+WORKDIR /app
 
-# Copiar solo archivos de dependencias
-COPY composer.json composer.lock package*.json ./
+# Copiar archivos de dependencias primero (mejor cache)
+COPY composer.json composer.lock package.json package-lock.json ./
 
-# Instalar dependencias PHP en modo producción
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+# Instalar composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
 
-# Instalar dependencias de Node para compilar assets
-RUN npm install
+# Instalar dependencias
+RUN composer install --no-dev --optimize-autoloader --no-scripts
+RUN npm ci
 
 # Copiar el resto del proyecto
 COPY . .
 
-# Compilar assets con Vite
+# Construir assets
 RUN npm run build
 
-# Eliminar node_modules para producción (Render Free no las usa)
-RUN rm -rf node_modules
+# Optimizaciones de Laravel
+RUN php artisan config:cache || true
+RUN php artisan route:cache || true
+RUN php artisan view:cache || true
 
-# Permisos correctos para Laravel
-RUN chown -R www-data:www-data storage bootstrap/cache \
-    && chmod -R 775 storage bootstrap/cache
+# ==========================
+# Etapa final: Producción
+# ==========================
+FROM php:8.2-apache
 
-# Activar módulos necesarios de Apache
+# Instalar dependencias de producción
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    libzip-dev \
+    libpng-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Instalar extensiones de PHP
+RUN docker-php-ext-install pdo pdo_pgsql zip gd
+
+# Habilitar módulos de Apache necesarios
 RUN a2enmod rewrite headers expires
 
-# Cambiar Apache al puerto 10000 para Render
-RUN sed -i 's/Listen 80/Listen 10000/' /etc/apache2/ports.conf
+# Configurar Apache para usar variable PORT de Render
+RUN sed -i 's/Listen 80/Listen ${PORT}/' /etc/apache2/ports.conf
 
-# VirtualHost optimizado para Render
-RUN printf '%s\n' "<VirtualHost *:10000>
-    ServerName taxi-express-ywvu.onrender.com
-    DocumentRoot /var/www/html/public
+WORKDIR /var/www/html
 
-    <Directory /var/www/html/public>
-        Options -Indexes +FollowSymLinks
-        AllowOverride All
-        Require all granted
-    </Directory>
+# Copiar aplicación desde el build
+COPY --from=build /app ./
 
-    ErrorLog \${APACHE_LOG_DIR}/error.log
-    CustomLog \${APACHE_LOG_DIR}/access.log combined
-</VirtualHost>" > /etc/apache2/sites-available/000-default.conf
+# Copiar configuración de Apache
+COPY apache-config/000-default.conf /etc/apache2/sites-available/000-default.conf
 
-# Copiar script de inicialización de Laravel
+# Configurar permisos
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Copiar y dar permisos al entrypoint
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-EXPOSE 10000
+# El puerto será dinámico desde la variable de entorno PORT
+ENV PORT=10000
 
-# Ejecutar script de inicio y luego Apache
-ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
-CMD ["apache2-foreground"]
+ENTRYPOINT ["docker-entrypoint.sh"]
