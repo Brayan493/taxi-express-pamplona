@@ -1,0 +1,380 @@
+/* ===== CSS EXCLUSIVO PARA PÁGINA SERVICIOS ===== */
+/* Archivo: resources/css/servicios.css */
+
+/* ===== HERO SECTION ===== */
+.servicios-hero {
+    position: relative;
+    height: 100vh;
+    min-height: 400px;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+                      url('/public/imagenes/TAXI2.jpg');
+    background-size: cover;
+    background-position: center 95%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 100px 20px 80px;
+}
+
+.servicios-content-wrapper {
+    color: white;
+    max-width: 1200px;
+    animation: fadeInUpServicios 1s ease;
+    margin-top: -80px;
+}
+
+@keyframes fadeInUpServicios {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.servicios-title {
+    font-size: 6rem;
+    font-weight: 700;
+    text-shadow: 4px 4px 10px rgba(0,0,0,0.8);
+    letter-spacing: 5px;
+    color: white;
+    margin: 0;
+}
+
+/* ===== CONTENIDO SERVICIOS ===== */
+.servicios-content {
+    background: #F4E5A8;
+    padding: 65px 55px;
+}
+
+.servicio-card {
+    max-width: 700px;
+    margin: 0 auto 20px;
+    padding: 40px 30px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.servicio-title {
+    font-size: 2rem;
+    color: #000;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 30px;
+    letter-spacing: 2px;
+}
+
+.servicio-image-container {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto 30px;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+.servicio-image-container img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.servicio-text {
+    text-align: center;
+    
+}
+
+.servicio-text p {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: #000000;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: bold;
+
+}
+
+.servicio-text p:last-child {
+    margin-bottom: 0;
+}
+
+.servicio-highlight {
+    font-weight: 700;
+    font-style: italic;
+    margin-top: 20px;
+    color: #0f0f0f;
+}
+
+/* ===== POR QUÉ ELEGIRNOS ===== */
+
+.porque-title {
+    font-size: 2rem;
+    color: #000;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 40px;
+    letter-spacing: 2px;
+    font-weight: bold;
+
+}
+
+.porque-content {
+    background: #F5E6B3;
+    padding: 50px 60px;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    max-width: 700px;
+    margin: 0 auto;
+    font-weight: bold;
+
+}
+
+.porque-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 30px 0;
+}
+
+.porque-list li {
+    font-size: 1.05rem;
+    line-height: 1.9;
+    color: #333;
+    margin-bottom: 15px;
+    padding-left: 0;
+}
+
+.highlight-red {
+    color: #E50000;
+    font-weight: 700;
+}
+
+.porque-footer {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: #333;
+    text-align: center;
+    margin-top: 30px;
+}
+
+/* ===== FOOTER ===== */
+.footer-landing {
+    background: #F4E5A8;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-content-landing {
+    background: white;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-logo-container {
+    background: white;
+    padding: 2px;
+    text-align: center;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.footer-logo {
+    height: 70px;
+    width: auto;
+}
+
+.footer-info {
+    background: #F4E5A8;
+    padding: 50px 40px;
+    text-align: center;
+}
+
+.footer-title {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 30px;
+    font-weight: 700;
+}
+
+.contact-info {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin: 20px 0;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.contact-icon {
+    font-size: 1.5rem;
+}
+
+.contact-text {
+    font-weight: 500;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 992px) {
+    .servicios-hero {
+        height: 70vh;
+        padding: 110px 25px 65px;
+    }
+
+    .servicios-content-wrapper {
+        margin-top: -40px;
+    }
+
+    .servicios-title {
+        font-size: 4.5rem;
+        letter-spacing: 6px;
+    }
+
+    .servicios-content {
+        padding: 50px 30px;
+    }
+
+    .servicio-card {
+        
+        margin-bottom: 35px;
+    }
+
+    .servicio-title {
+        font-size: 1.8rem;
+    }
+
+    .porque-elegirnos {
+        padding: 50px 30px;
+    }
+
+    .porque-content {
+        padding: 40px 45px;
+    }
+}
+
+@media (max-width: 768px) {
+    .servicios-hero {
+        height: 60vh;
+        min-height: 400px;
+        padding: 120px 20px 80px;
+    }
+
+    .servicios-content-wrapper {
+        margin-top: -40px;
+    }
+
+    .servicios-title {
+        font-size: 3.5rem;
+        letter-spacing: 4px;
+    }
+
+    .servicios-content {
+        padding: 40px 20px;
+    }
+
+    .servicio-card {
+        padding: 35px 30px;
+        margin-bottom: 30px;
+    }
+
+    .servicio-title {
+        font-size: 1.6rem;
+        margin-bottom: 25px;
+    }
+
+    .servicio-text p {
+        font-size: 1rem;
+        text-align: left;
+    }
+
+    .porque-elegirnos {
+        padding: 40px 20px;
+    }
+
+    .porque-content {
+        padding: 35px 30px;
+    }
+
+    .porque-title {
+        font-size: 1.8rem;
+    }
+
+    .porque-list li {
+        font-size: 1rem;
+    }
+
+    .porque-footer {
+        font-size: 1rem;
+        text-align: left;
+    }
+
+    .contact-item {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .servicios-hero {
+        height: 50vh;
+        min-height: 350px;
+        padding: 100px 20px 60px;
+    }
+
+    .servicios-content-wrapper {
+        margin-top: -30px;
+    }
+
+    .servicios-title {
+        font-size: 2.5rem;
+        letter-spacing: 3px;
+    }
+
+    .servicios-content {
+        padding: 30px 15px;
+    }
+
+    .servicio-card {
+        padding: 30px 20px;
+        margin-bottom: 25px;
+    }
+
+    .servicio-title {
+        font-size: 1.4rem;
+        margin-bottom: 20px;
+    }
+
+    .servicio-text p {
+        font-size: 0.95rem;
+        line-height: 1.7;
+    }
+
+    .porque-elegirnos {
+        padding: 30px 15px;
+    }
+
+    .porque-content {
+        padding: 25px 20px;
+    }
+
+    .porque-title {
+        font-size: 1.6rem;
+    }
+
+    .porque-list li {
+        font-size: 0.95rem;
+        line-height: 1.7;
+    }
+
+    .porque-footer {
+        font-size: 0.95rem;
+    }
+}

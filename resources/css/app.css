@@ -1,3 +1,581 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* ===== RESET Y ESTILOS GLOBALES ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    overflow-x: hidden;
+}
+
+.landing-body {
+    background-color: #f5f5f5;
+}
+
+/* ===== HEADER Y NAVEGACIÓN ===== */
+.header-landing {
+    background: transparent;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+    box-shadow: none;
+    transition: all 0.4s ease;
+}
+
+.header-landing.scrolled {
+    background: #E50000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.container-landing {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.navbar-landing {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    position: relative;
+}
+
+.logo-landing {
+    flex-shrink: 0;
+}
+
+.logo-landing img {
+    height: 70px;
+    width: auto;
+}
+
+.nav-menu-landing {
+    display: flex;
+    list-style: none;
+    gap: 35px;
+    align-items: center;
+    margin: 0;
+}
+
+.nav-link-landing {
+    text-decoration: none;
+    color: white;
+    font-weight: 700;
+    font-size: 15px;
+    transition: color 0.3s;
+    letter-spacing: 0.5px;
+}
+
+.nav-link-landing:hover {
+    color: #FFD700;
+}
+
+/* Dropdown */
+.dropdown-landing {
+    position: relative;
+}
+
+.dropdown-toggle {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+}
+
+.dropdown-arrow {
+    transition: transform 0.3s;
+}
+
+.dropdown-landing:hover .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+.dropdown-menu-landing {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    min-width: 200px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    list-style: none;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s;
+    margin-top: 10px;
+}
+
+.dropdown-landing:hover .dropdown-menu-landing {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-item-landing {
+    display: block;
+    padding: 12px 20px;
+    color: #333;
+    text-decoration: none;
+    transition: background 0.3s;
+    font-weight: 600;
+}
+
+.dropdown-item-landing:hover {
+    background: #f0f0f0;
+}
+
+.dropdown-btn {
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: inherit;
+}
+
+/* Hamburger Menu */
+.hamburger-landing {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+    gap: 5px;
+}
+
+.hamburger-landing span {
+    width: 30px;
+    height: 3px;
+    background: white;
+    transition: all 0.3s;
+}
+
+.hamburger-landing.active span:nth-child(1) {
+    transform: rotate(45deg) translate(8px, 8px);
+}
+
+.hamburger-landing.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger-landing.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -7px);
+}
+
+/* ===== MAIN CONTAINER ===== */
+.main-landing {
+    margin-top: 0;
+}
+
+/* ===== HERO SECTION CON IMAGEN DE FONDO ===== */
+.hero-landing {
+    position: relative;
+    height: 100vh;
+    min-height: 600px;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+                      url('/public/imagenes/TAXI1.jpg');
+    background-size: cover;
+    background-position: center 75%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 120px 20px 80px;
+}
+
+.hero-content-wrapper {
+    color: white;
+    width: 100%;
+    max-width: 1400px;
+    animation: fadeInUp 1s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.hero-title {
+    font-size: 5.5rem;
+    font-weight: 900;
+    margin-bottom: 200px;
+    margin-top: 100px;
+    text-shadow: 4px 4px 10px rgba(0,0,0,0.8);
+    line-height: 1.1;
+    letter-spacing: 1px;
+    width: 100%;
+    text-align: center;
+    
+}
+
+.title-line-1,
+.title-line-2 {
+    white-space: nowrap;
+}
+
+.title-red {
+    color: #FF0000;
+}
+
+.title-black {
+    color: #070000;
+}
+
+.title-blue {
+    color: #0080FF;
+}
+
+.title-yellow {
+    color: #FFD500;
+}
+
+.hero-info {
+    margin-top: -50px;
+    color: white;
+    align-self: flex-end;
+    text-align: right;
+    padding: -10px -10px;
+    
+    
+}
+
+.info-subtitle {
+    font-size: 1.8rem;
+    font-weight: 500;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.8);
+}
+
+.info-address,
+.info-city {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin: 8px 0;
+    text-shadow: 2px 2px 5px rgba(0,0,0,0.8);
+}
+
+.info-phones,
+.info-schedule {
+    font-size: 1.2rem;
+    font-weight: 600; 
+    margin: 8px 0;
+    text-shadow: 2px 2px 5px rgba(0,0,0,0.8);
+}
+
+/* ===== SECCIÓN DESCRIPCIÓN (NOSOTROS) ===== */
+.description-landing {
+    background: #F4E5A8;
+    padding: 60px 40px;
+    text-align: center;
+    margin-top: 0;
+}
+
+.description-landing p {
+    max-width: 1000px;
+    margin: 0 auto 20px;
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #333;
+    font-weight: 400;
+}
+
+.description-landing p:last-child {
+    margin-bottom: 0;
+}
+
+/* ===== SECCIÓN NUESTRA OFICINA ===== */
+.office-landing {
+    background: #F4E5A8;
+    padding: 60px 40px 80px;
+    text-align: center;
+}
+
+.office-title {
+    font-size: 2.5rem;
+    color: #333;
+    margin-bottom: 40px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.office-image-container {
+    max-width: 800px;
+    margin: 0 auto;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.office-image-container img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* ===== FOOTER ===== */
+.footer-landing {
+    background: #F4E5A8;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-content-landing {
+    background: white;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-logo-container {
+    background: white;
+    padding: 2px;
+    text-align: center;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.footer-logo {
+    height: 70px;
+    width: auto;
+}
+
+.footer-info {
+    background: #F4E5A8;
+    padding: 50px 40px;
+    text-align: center;
+}
+
+.footer-title {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 30px;
+    font-weight: 700;
+}
+
+.contact-info {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin: 20px 0;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.contact-icon {
+    font-size: 1.5rem;
+}
+
+.contact-text {
+    font-weight: 500;
+}
+
+.copy-item {
+    margin-top: 10px;
+    font-size: 0.95rem;
+    color: #555;
+}
+
+.copy-text {
+    font-weight: 600;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 992px) {
+    .nav-menu-landing {
+        gap: 20px;
+    }
+
+    .nav-link-landing {
+        font-size: 14px;
+    }
+
+    .hero-title {
+        font-size: 4rem;
+    }
+
+    .hero-info {
+        padding: 20px 35px;
+    }
+
+    .info-subtitle {
+        font-size: 1.5rem;
+    }
+
+    .info-address,
+    .info-city {
+        font-size: 1.2rem;
+    }
+
+    .info-phones,
+    .info-schedule {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .hamburger-landing {
+        display: flex;
+    }
+
+    .nav-menu-landing {
+        position: fixed;
+        top: 80px;
+        left: -100%;
+        width: 100%;
+        height: calc(100vh - 80px);
+        background: #E50000;
+        flex-direction: column;
+        justify-content: flex-start;
+        padding: 40px 20px;
+        gap: 20px;
+        transition: left 0.3s;
+    }
+
+    .nav-menu-landing.active {
+        left: 0;
+    }
+
+    .dropdown-menu-landing {
+        position: static;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        box-shadow: none;
+        background: rgba(255, 255, 255, 0.1);
+        margin-top: 10px;
+    }
+
+    .dropdown-item-landing {
+        color: white;
+    }
+
+    .dropdown-item-landing:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .hero-landing {
+        min-height: 650px;
+        padding: 100px 20px 80px;
+    }
+
+    .hero-title {
+        font-size: 3rem;
+        margin-bottom: 20px;
+    }
+
+    .hero-info {
+        padding: 20px 25px;
+        margin-top: 60px;
+    }
+
+    .info-subtitle {
+        font-size: 1.3rem;
+    }
+
+    .info-address,
+    .info-city {
+        font-size: 1.1rem;
+    }
+
+    .info-phones,
+    .info-schedule {
+        font-size: 1rem;
+    }
+
+    .description-landing {
+        padding: 50px 30px;
+    }
+
+    .description-landing p {
+        font-size: 1.05rem;
+    }
+
+    .office-landing {
+        padding: 50px 30px;
+    }
+
+    .office-title {
+        font-size: 2rem;
+    }
+
+    .footer-info {
+        padding: 40px 30px;
+    }
+
+    .contact-item {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo-landing img {
+        height: 60px;
+    }
+
+    .hero-landing {
+        min-height: 700px;
+        padding: 90px 20px 80px;
+    }
+
+    .hero-title {
+        font-size: 2.5rem;
+    }
+
+    .hero-info {
+        padding: 15px 20px;
+    }
+
+    .info-subtitle {
+        font-size: 1.2rem;
+    }
+
+    .info-address,
+    .info-city {
+        font-size: 1rem;
+    }
+
+    .info-phones,
+    .info-schedule {
+        font-size: 0.95rem;
+    }
+
+    .description-landing {
+        padding: 40px 20px;
+    }
+
+    .description-landing p {
+        font-size: 1rem;
+        margin-bottom: 15px;
+    }
+
+    .office-title {
+        font-size: 1.7rem;
+    }
+
+    .footer-title {
+        font-size: 1.7rem;
+    }
+
+    .contact-item {
+        font-size: 1rem;
+    }
+}

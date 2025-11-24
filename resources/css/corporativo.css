@@ -1,0 +1,185 @@
+/* ===== CSS EXCLUSIVO PARA PÁGINA CORPORATIVO ===== */
+/* Archivo: resources/css/corporativo.css */
+
+/* ===== SECCIÓN CORPORATIVO - HERO FULL SCREEN ===== */
+.corporativo-hero {
+    position: relative;
+    height: 100vh;
+    min-height: 600px;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+                      url('/public/imagenes/TAXI4.jpg');
+    background-size: cover;
+    background-position: center 95%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 120px 20px 80px;
+}
+
+.corporativo-content-wrapper {
+    color: white;
+    max-width: 1100px;
+    animation: fadeInUpCorporativo 1s ease;
+}
+
+@keyframes fadeInUpCorporativo {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.corporativo-title {
+    font-size: 5rem;
+    font-weight: 900;
+    text-shadow: 4px 4px 10px rgba(0,0,0,0.8);
+    letter-spacing: 3px;
+    color: white;
+    margin: 0;
+}
+
+/* ===== CONTENIDO CORPORATIVO ===== */
+.corporativo-content {
+    background: #F5E6B3;
+    padding: 80px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+    align-items: center;
+    min-height: 50vh;
+}
+
+.corporativo-card {
+    max-width: 900px;
+    width: 100%;
+    background: #F5E6B3;
+    padding: 50px 40px;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.corporativo-subtitle {
+    font-size: 1.8rem;
+    color: #000;
+    margin-bottom: 40px;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+.corporativo-texto {
+    margin-top: 20px;
+}
+
+.corporativo-texto p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #333;
+    text-align: justify;
+    margin-bottom: 20px;
+}
+
+.corporativo-texto p:last-child {
+    margin-bottom: 0;
+}
+
+/* ===== RESPONSIVE CORPORATIVO ===== */
+@media (max-width: 992px) {
+    .corporativo-hero {
+        height: 90vh;
+        min-height: 550px;
+        padding: 130px 30px 70px;
+    }
+
+    .corporativo-title {
+        font-size: 3.5rem;
+    }
+
+    .corporativo-content {
+        padding: 70px 35px;
+        gap: 45px;
+    }
+
+    .corporativo-card {
+        padding: 40px 35px;
+    }
+
+    .corporativo-subtitle {
+        font-size: 1.6rem;
+    }
+
+    .corporativo-texto p {
+        font-size: 1.05rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .corporativo-hero {
+        height: 100vh;
+        min-height: 650px;
+        padding: 120px 20px 80px;
+    }
+
+    .corporativo-title {
+        font-size: 3rem;
+        letter-spacing: 2px;
+    }
+
+    .corporativo-content {
+        padding: 60px 30px;
+        gap: 40px;
+    }
+
+    .corporativo-card {
+        padding: 40px 30px;
+    }
+
+    .corporativo-subtitle {
+        font-size: 1.5rem;
+        margin-bottom: 30px;
+    }
+
+    .corporativo-texto p {
+        font-size: 1rem;
+        text-align: left;
+        line-height: 1.7;
+    }
+}
+
+@media (max-width: 480px) {
+    .corporativo-hero {
+        height: 100vh;
+        min-height: 700px;
+        padding: 100px 20px 60px;
+    }
+
+    .corporativo-title {
+        font-size: 2.2rem;
+        letter-spacing: 1.5px;
+    }
+
+    .corporativo-content {
+        padding: 50px 20px;
+        gap: 30px;
+    }
+
+    .corporativo-card {
+        padding: 30px 20px;
+    }
+
+    .corporativo-subtitle {
+        font-size: 1.3rem;
+        margin-bottom: 25px;
+    }
+
+    .corporativo-texto p {
+        font-size: 0.95rem;
+        line-height: 1.6;
+}
+}

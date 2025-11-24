@@ -3,10 +3,15 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Route;
 
 class AppServiceProvider extends ServiceProvider
 {
+    /**
+     * Ruta por defecto después del login
+     */
+    public const HOME = '/dashboard';
+
     /**
      * Register any application services.
      */
@@ -20,9 +25,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-       // Forzar HTTPS en producción
-        if (config('app.env') === 'production' || env('FORCE_HTTPS', false)) {
-            URL::forceScheme('https');
-        }
+        // Configuración de redirección después de autenticación
+        $this->configureRedirects();
+    }
+
+    /**
+     * Configurar las redirecciones de autenticación
+     */
+    protected function configureRedirects(): void
+    {
+        // Aquí puedes agregar configuración adicional si es necesaria
     }
 }
