@@ -146,100 +146,101 @@
     <div class="navbar">
         <h1>🚖 Panel de Conductor - Taxi Express Pamplona</h1>
         <div class="user-info">
-            <span>Bienvenido, {{ Auth::user()->nombre }} {{ Auth::user()->apellido }}</span>
-            <form action="{{ route('logout') }}" method="POST" style="display: inline; margin-left: 15px;">
-                @csrf
+            <span>Bienvenido, <?php echo e(Auth::user()->nombre); ?> <?php echo e(Auth::user()->apellido); ?></span>
+            <form action="<?php echo e(route('logout')); ?>" method="POST" style="display: inline; margin-left: 15px;">
+                <?php echo csrf_field(); ?>
                 <button type="submit" class="btn-logout">Cerrar Sesión</button>
             </form>
         </div>
     </div>
 
     <div class="container">
-        {{-- Mensajes --}}
-        @if(session('success'))
-            <div class="alert-box alert-success">✅ {{ session('success') }}</div>
-        @endif
-        @if(session('error') || isset($error))
-            <div class="alert-box alert-error">⚠️ {{ session('error') ?? $error }}</div>
-        @endif
+        
+        <?php if(session('success')): ?>
+            <div class="alert-box alert-success">✅ <?php echo e(session('success')); ?></div>
+        <?php endif; ?>
+        <?php if(session('error') || isset($error)): ?>
+            <div class="alert-box alert-error">⚠️ <?php echo e(session('error') ?? $error); ?></div>
+        <?php endif; ?>
 
-        {{-- Menú de Navegación (SIN Vehículos ni Conductores) --}}
+        
         <div class="menu-nav">
-            <a href="{{ route('conductor.mis-turnos') }}">📅 Mis Turnos</a>
-            <a href="{{ route('conductor.alertas') }}">⚠️ Alertas</a>
-            <a href="{{ route('conductor.solicitudes-cambio-ruta') }}">📝 Solicitudes Ruta</a>
-            <a href="{{ route('conductor.tarifas') }}">💰 Tarifas</a>
-            <a href="{{ route('conductor.mantenimiento-general') }}">🔧 Mantenimientos</a>
+            <a href="<?php echo e(route('conductor.mis-turnos')); ?>">📅 Mis Turnos</a>
+            <a href="<?php echo e(route('conductor.alertas')); ?>">⚠️ Alertas</a>
+            <a href="<?php echo e(route('conductor.solicitudes-cambio-ruta')); ?>">📝 Solicitudes Ruta</a>
+            <a href="<?php echo e(route('conductor.tarifas')); ?>">💰 Tarifas</a>
+            <a href="<?php echo e(route('conductor.mantenimiento-general')); ?>">🔧 Mantenimientos</a>
         </div>
 
-        {{-- Información del conductor --}}
-        @if(isset($conductor) && $conductor)
+        
+        <?php if(isset($conductor) && $conductor): ?>
             <div class="info-conductor">
                 <strong>📋 Mi Información</strong><br><br>
-                <strong>Nombre:</strong> {{ $conductor->primer_nombre }} {{ $conductor->primer_apellido }}<br>
-                <strong>Documento:</strong> {{ $conductor->tipo_documento }} {{ $conductor->numero_documento }}<br>
-                <strong>Licencia:</strong> {{ $conductor->numero_licencia }} - Categoría {{ $conductor->categoria_licencia }}<br>
-                <strong>Celular:</strong> {{ $conductor->celular }}<br>
-                <strong>Estado:</strong> <span style="color: {{ $conductor->estado == 'activo' ? '#2e7d32' : '#c62828' }}; font-weight: bold;">{{ ucfirst($conductor->estado) }}</span>
+                <strong>Nombre:</strong> <?php echo e($conductor->primer_nombre); ?> <?php echo e($conductor->primer_apellido); ?><br>
+                <strong>Documento:</strong> <?php echo e($conductor->tipo_documento); ?> <?php echo e($conductor->numero_documento); ?><br>
+                <strong>Licencia:</strong> <?php echo e($conductor->numero_licencia); ?> - Categoría <?php echo e($conductor->categoria_licencia); ?><br>
+                <strong>Celular:</strong> <?php echo e($conductor->celular); ?><br>
+                <strong>Estado:</strong> <span style="color: <?php echo e($conductor->estado == 'activo' ? '#2e7d32' : '#c62828'); ?>; font-weight: bold;"><?php echo e(ucfirst($conductor->estado)); ?></span>
             </div>
-        @endif
+        <?php endif; ?>
 
-        {{-- Estadísticas --}}
+        
         <div class="stats-grid">
             <div class="stat-card">
                 <h3>📅 Turnos Próximos</h3>
-                <div class="number">{{ isset($turnosProximos) ? $turnosProximos->count() : 0 }}</div>
+                <div class="number"><?php echo e(isset($turnosProximos) ? $turnosProximos->count() : 0); ?></div>
             </div>
             <div class="stat-card">
                 <h3>📝 Solicitudes Pendientes</h3>
-                <div class="number">{{ $solicitudesPendientes ?? 0 }}</div>
+                <div class="number"><?php echo e($solicitudesPendientes ?? 0); ?></div>
             </div>
             <div class="stat-card alertas">
                 <h3>⚠️ Alertas Sin Resolver</h3>
-                <div class="number">{{ isset($alertas) ? $alertas->count() : 0 }}</div>
+                <div class="number"><?php echo e(isset($alertas) ? $alertas->count() : 0); ?></div>
             </div>
         </div>
 
-        {{-- Turnos Próximos --}}
+        
         <div class="section">
             <h2>📅 Mis Próximos Turnos</h2>
-            @if(isset($turnosProximos) && $turnosProximos->count() > 0)
-                @foreach($turnosProximos as $turno)
+            <?php if(isset($turnosProximos) && $turnosProximos->count() > 0): ?>
+                <?php $__currentLoopData = $turnosProximos; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $turno): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <div class="turno-item">
-                        <strong>📆 Fecha:</strong> {{ \Carbon\Carbon::parse($turno->fecha_turno)->format('d/m/Y') }}<br>
-                        <strong>🚐 Vehículo:</strong> {{ $turno->vehiculo->placa ?? 'N/A' }} - {{ $turno->vehiculo->marca ?? '' }} {{ $turno->vehiculo->modelo ?? '' }}<br>
-                        <strong>🔢 Número Móvil:</strong> {{ $turno->vehiculo->numero_interno ?? 'N/A' }}<br>
-                        <strong>📊 Estado:</strong> {{ ucfirst($turno->estado ?? 'programado') }}
+                        <strong>📆 Fecha:</strong> <?php echo e(\Carbon\Carbon::parse($turno->fecha_turno)->format('d/m/Y')); ?><br>
+                        <strong>🚐 Vehículo:</strong> <?php echo e($turno->vehiculo->placa ?? 'N/A'); ?> - <?php echo e($turno->vehiculo->marca ?? ''); ?> <?php echo e($turno->vehiculo->modelo ?? ''); ?><br>
+                        <strong>🔢 Número Móvil:</strong> <?php echo e($turno->vehiculo->numero_interno ?? 'N/A'); ?><br>
+                        <strong>📊 Estado:</strong> <?php echo e(ucfirst($turno->estado ?? 'programado')); ?>
+
                     </div>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 <div style="text-align: center; margin-top: 15px;">
-                    <a href="{{ route('conductor.mis-turnos') }}" style="color: #00695c; font-weight: bold;">Ver todos mis turnos →</a>
+                    <a href="<?php echo e(route('conductor.mis-turnos')); ?>" style="color: #00695c; font-weight: bold;">Ver todos mis turnos →</a>
                 </div>
-            @else
+            <?php else: ?>
                 <div class="empty-state">
                     <div class="icon">📅</div>
                     <p>No tienes turnos programados próximamente.</p>
                 </div>
-            @endif
+            <?php endif; ?>
         </div>
 
-        {{-- Alertas --}}
-        @if(isset($alertas) && $alertas->count() > 0)
+        
+        <?php if(isset($alertas) && $alertas->count() > 0): ?>
             <div class="section">
                 <h2>⚠️ Mis Alertas Pendientes</h2>
-                @foreach($alertas as $alerta)
-                    <div class="alerta-item {{ strtolower($alerta->prioridad) }}">
-                        <strong>{{ $alerta->titulo }}</strong>
-                        <span class="badge {{ strtolower($alerta->prioridad) }}">{{ ucfirst($alerta->prioridad) }}</span><br>
-                        <p style="margin: 10px 0;">{{ $alerta->descripcion }}</p>
-                        <small style="color: #666;">📅 {{ \Carbon\Carbon::parse($alerta->fecha_alerta)->format('d/m/Y H:i') }}</small>
+                <?php $__currentLoopData = $alertas; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $alerta): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <div class="alerta-item <?php echo e(strtolower($alerta->prioridad)); ?>">
+                        <strong><?php echo e($alerta->titulo); ?></strong>
+                        <span class="badge <?php echo e(strtolower($alerta->prioridad)); ?>"><?php echo e(ucfirst($alerta->prioridad)); ?></span><br>
+                        <p style="margin: 10px 0;"><?php echo e($alerta->descripcion); ?></p>
+                        <small style="color: #666;">📅 <?php echo e(\Carbon\Carbon::parse($alerta->fecha_alerta)->format('d/m/Y H:i')); ?></small>
                     </div>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 <div style="text-align: center; margin-top: 15px;">
-                    <a href="{{ route('conductor.alertas') }}" style="color: #00695c; font-weight: bold;">Ver todas las alertas →</a>
+                    <a href="<?php echo e(route('conductor.alertas')); ?>" style="color: #00695c; font-weight: bold;">Ver todas las alertas →</a>
                 </div>
             </div>
-        @endif
+        <?php endif; ?>
     </div>
 </body>
-</html>
+</html><?php /**PATH C:\Users\Usuario\Desktop\TRABAJO DE GRADO\proyecto-login\proyecto-login\proyecto-login\resources\views/conductor/dashboard.blade.php ENDPATH**/ ?>

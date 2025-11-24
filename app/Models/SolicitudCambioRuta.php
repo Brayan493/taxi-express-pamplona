@@ -58,6 +58,6 @@ class SolicitudCambioRuta extends Model
      */
     public function autorizadoPor()
     {
-        return $this->belongsTo(Usuario::class, 'autorizado_por', 'id_usuario');
+        return $this->belongsTo(User::class, 'autorizado_por', 'id_usuario');
     }
 }
