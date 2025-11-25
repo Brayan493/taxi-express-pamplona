@@ -59,15 +59,10 @@
             border-bottom: 2px solid #9c27b0;
             padding-bottom: 10px;
         }
-        .header-controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
         .menu-links {
             display: flex;
             gap: 15px;
+            margin-bottom: 20px;
         }
         .menu-links a {
             padding: 10px 20px;
@@ -76,27 +71,11 @@
             text-decoration: none;
             border-radius: 5px;
             transition: background 0.3s ease;
-            font-weight: bold;
         }
         .menu-links a.active,
         .menu-links a:hover {
             background: #7b1fa2;
         }
-        
-        /* Botón de Creación */
-        .btn-crear {
-            padding: 10px 20px;
-            background: #2196f3; /* Azul para crear */
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-            transition: background 0.3s ease;
-        }
-        .btn-crear:hover {
-            background: #1976d2;
-        }
-
         /* Estilos de tabla */
         .data-table {
             width: 100%;
@@ -118,30 +97,19 @@
         .data-table tr:hover {
             background-color: #f5f5f5;
         }
-        .btn-action {
+        .btn-detalle {
+            background: #4caf50;
+            color: white;
             padding: 5px 10px;
             border-radius: 4px;
             text-decoration: none;
             font-size: 14px;
-            font-weight: bold;
-            display: inline-block;
-            margin-right: 5px;
-        }
-        .btn-editar {
-            background: #ff9800; /* Naranja para editar */
-            color: white;
-        }
-        .btn-editar:hover {
-            background: #e68900;
-        }
-        .btn-detalle {
-            background: #4caf50;
-            color: white;
         }
         .btn-detalle:hover {
             background: #388e3c;
         }
         .filter-form {
+            margin-bottom: 20px;
             display: flex;
             gap: 15px;
             align-items: center;
@@ -184,7 +152,6 @@
     <div class="navbar">
         <h1>Panel de Operadora - Taxi Express Pamplona</h1>
         <div class="user-info">
-            {{-- Asumiendo que Auth::user() está disponible --}}
             <span>Bienvenida, {{ Auth::user()->nombre ?? 'Operadora' }} {{ Auth::user()->apellido ?? 'Invitada' }}</span>
             <form action="{{ route('logout') }}" method="POST" style="display: inline;">
                 @csrf
@@ -200,31 +167,19 @@
             <a href="{{ route('operadora.vehiculos') }}">Vehículos</a>
             <a href="{{ route('operadora.control-turnos') }}">Control de Turnos</a>
             <a href="{{ route('operadora.turnos-obligatorios') }}">Turnos Obligatorios</a>
-            <a href="{{ route('operadora.cumplimiento-turnos.index') }}" class="active">Cumplimiento de Turnos</a>
+            <a href="{{ route('operadora.cumplimiento-turnos') }}" class="active">Cumplimiento de Turnos</a>
+            
         </div>
         
         <div class="content-card">
-            <div class="header-controls">
-                <h2>Reporte de Cumplimiento de Turnos</h2>
-                <a href="{{ route('operadora.cumplimiento-turnos.crear') }}" class="btn-crear">
-                    + Crear Nuevo Turno
-                </a>
-            </div>
+            <h2>Reporte de Cumplimiento de Turnos</h2>
 
             {{-- Formulario de Filtro (Ejemplo) --}}
-            <form action="{{ route('operadora.cumplimiento-turnos.index') }}" method="GET" class="filter-form">
+            <form action="{{ route('operadora.cumplimiento-turnos') }}" method="GET" class="filter-form">
                 <label for="fecha_filtro">Filtrar por Fecha:</label>
-                {{-- Usamos $fechaActual que debería venir del controlador para mantener el estado del filtro --}}
-                <input type="date" id="fecha_filtro" name="fecha" value="{{ $fechaActual ?? date('Y-m-d') }}">
+                <input type="date" id="fecha_filtro" name="fecha" value="{{ request('fecha', date('Y-m-d')) }}">
                 <button type="submit">Aplicar Filtro</button>
             </form>
-            
-            @if (session('success'))
-                <div style="background-color: #d4edda; color: #155724; padding: 10px; border-radius: 5px; margin-bottom: 20px;">
-                    {{ session('success') }}
-                </div>
-            @endif
-
 
             {{-- Tabla de Cumplimiento --}}
             <table class="data-table">
@@ -240,18 +195,19 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {{-- Iterar sobre los datos de cumplimiento pasados por el controlador ($reporteCumplimiento) --}}
+                    {{-- Iterar sobre los datos de cumplimiento pasados por el controlador --}}
+                    {{-- $reporteCumplimiento debe ser una colección de objetos/arrays --}}
                     @forelse($reporteCumplimiento ?? [] as $reporte)
                         <tr>
-                            {{-- Los campos se leen según el objeto devuelto por la consulta en el controlador --}}
-                            <td>{{ $reporte->nombre ?? 'N/A' }} {{ $reporte->apellido ?? '' }}</td>
-                            <td>{{ $reporte->placa ?? 'N/A' }} ({{ $reporte->movil ?? 'N/A' }})</td>
-                            <td>{{ $reporte->asignados ?? 0 }}</td>
-                            <td>{{ $reporte->cumplidos ?? 0 }}</td>
-                            <td>{{ $reporte->incidencias ?? 0 }}</td>
+                            <td>{{ $reporte['nombre_conductor'] ?? 'N/A' }}</td>
+                            <td>{{ $reporte['placa'] ?? 'N/A' }} ({{ $reporte['movil'] ?? 'N/A' }})</td>
+                            <td>{{ $reporte['asignados'] ?? 0 }}</td>
+                            <td>{{ $reporte['cumplidos'] ?? 0 }}</td>
+                            <td>{{ $reporte['incidencias'] ?? 0 }}</td>
                             <td>
+                                {{-- Lógica simple para calcular porcentaje. Asumimos que $reporte tiene el valor precalculado --}}
                                 @php
-                                    $porcentaje = $reporte->porcentaje_cumplimiento ?? 0;
+                                    $porcentaje = $reporte['porcentaje_cumplimiento'] ?? 0;
                                     $clase_estado = 'ok';
                                     if ($porcentaje < 80) $clase_estado = 'tarde';
                                     if ($porcentaje < 50) $clase_estado = 'falta';
@@ -261,22 +217,14 @@
                                 </span>
                             </td>
                             <td>
-                                {{-- Enlace de Editar: Asume que se puede editar un turno específico desde aquí,
-                                     aunque el reporte es por conductor. Lo más lógico sería enviar a la vista de edición 
-                                     del **Turno** más reciente o un ID de turno específico. Para la prueba, usaremos 
-                                     el ID del conductor, pero en un caso real se necesitaría un ID de Turno ($id_turno).
-                                     Como el reporte es una agregación, usaremos un ID de ejemplo (1) para la demostración. --}}
-                                <a href="#" class="btn-action btn-detalle" onclick="alert('Esta acción requiere el ID específico de un Turno individual para ver el detalle de cumplimiento de la fecha.')">Detalle</a>
-                                
-                                {{-- Suponiendo que 'id_turno' está disponible si el reporte es una colección de turnos individuales.
-                                     Si el reporte es agregado (como en el controlador anterior), este enlace debe llevar a editar
-                                     un turno específico. Dado que es un reporte agregado, usamos un ID de ejemplo (1) --}}
-                                <a href="{{ route('operadora.cumplimiento-turnos.editar', 1) }}" class="btn-action btn-editar">Editar Turno (Ejemplo)</a>
+                                {{-- El ID debe ser el del conductor o el del turno, dependiendo de cómo quieras ver el detalle.
+                                    Usaremos el ID del conductor por ahora para ver su historial. --}}
+                                <a href="{{ route('operadora.detalle-cumplimiento', ['id' => $reporte['id_conductor'] ?? 0]) }}" class="btn-detalle">Ver Detalle</a>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" style="text-align: center;">No se encontraron datos de cumplimiento para la fecha seleccionada.</td>
+                            <td colspan="7">No se encontraron datos de cumplimiento para la fecha seleccionada.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -285,4 +233,3 @@
     </div>
 </body>
 </html>
-

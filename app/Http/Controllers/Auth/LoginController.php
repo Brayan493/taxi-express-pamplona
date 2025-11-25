@@ -3,14 +3,15 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
 {
     public function showLoginForm()
     {
-        // Si ya está autenticado, redirigir a su dashboard
         if (Auth::check()) {
             $user = Auth::user();
             
@@ -33,13 +34,24 @@ class LoginController extends Controller
             'contrasena' => 'required',
         ]);
 
-        // Intentar autenticar
-        if (Auth::attempt(['correo' => $credentials['correo'], 'password' => $credentials['contrasena']])) {
-            $request->session()->regenerate();
+        // ✅ SOLUCIÓN: Autenticación manual
+        $user = User::where('correo', $credentials['correo'])->first();
 
-            // ✅ Redirigir según el id_rol del usuario
-            $user = Auth::user();
+        // Verificar que el usuario exista y la contraseña sea correcta
+        if ($user && Hash::check($credentials['contrasena'], $user->contrasena)) {
             
+            // Verificar que el usuario esté activo
+            if (!$user->activo) {
+                return back()->withErrors([
+                    'correo' => 'Tu cuenta está inactiva. Contacta al administrador.',
+                ])->onlyInput('correo');
+            }
+
+            // ✅ Iniciar sesión manualmente
+            Auth::login($user, $request->boolean('remember'));
+            $request->session()->regenerate();
+            
+            // Redirigir según rol
             if ($user->id_rol === 1) {
                 return redirect()->route('admin.dashboard');
             } elseif ($user->id_rol === 2) {
@@ -48,7 +60,7 @@ class LoginController extends Controller
                 return redirect()->route('conductor.dashboard');
             }
             
-            // Fallback: cerrar sesión si no tiene rol válido
+            // Si no tiene un rol válido
             Auth::logout();
             return redirect()->route('login')->with('error', 'No tienes un rol válido asignado');
         }
@@ -64,7 +76,6 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        // ✅ Redirigir a la página de inicio (no al login)
         return redirect()->route('home')->with('success', 'Sesión cerrada correctamente');
     }
 }

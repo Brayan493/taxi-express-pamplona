@@ -86,10 +86,10 @@ return [
         'pgsql' => [
             'driver' => 'pgsql',
             'url' => env('DB_URL'),
-            'host' => env('DB_HOST', '127.0.0.1'),
+            'host' => env('DB_HOST', 'dpg-d4hroop5pdvs739e0dtg-a.oregon-postgres.render.com'),
             'port' => env('DB_PORT', '5432'),
-            'database' => env('DB_DATABASE', 'taxi_express_odw3'),
-            'username' => env('DB_USERNAME', 'taxi_express_user'),
+            'database' => env('DB_DATABASE', 'taxi_express_pamplona_i5bu'),
+            'username' => env('DB_USERNAME', 'taxiexpressuser'),
             'password' => env('DB_PASSWORD', ''),
             'charset' => env('DB_CHARSET', 'utf8'),
             'prefix' => '',

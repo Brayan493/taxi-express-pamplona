@@ -21,15 +21,15 @@ services:
       - key: DB_CONNECTION
         value: pgsql
       - key: DB_HOST
-        value: dpg-d3s3g5mr433s73cgjmpg-a.oregon-postgres.render.com
+        value: dpg-d4ft2k2li9vc73crpu90-a.oregon-postgres.render.com
       - key: DB_PORT
         value: 5432
       - key: DB_DATABASE
-        value: taxi_express_odw3
+        value: taxi_express_pamplona
       - key: DB_USERNAME
         value: taxi_express_user
       - key: DB_PASSWORD
-        value: p62G3QRzb0PikUt8QDYml6ryGFny5RtM
+        value: FNLNmpPgBReBCf2OLm9T6Q1z7wdvk4FY
       - key: SESSION_DRIVER
         value: database
       - key: CACHE_DRIVER

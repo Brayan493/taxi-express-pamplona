@@ -146,10 +146,11 @@
         @endif
 
         <div class="menu-links">
-    <a href="{{ route('operadora.vehiculos') }}">Vehículos</a>
-    <a href="{{ route('operadora.control-turnos') }}">Control de Turnos</a>
-    <a href="{{ route('operadora.turnos-obligatorios') }}">Turnos Obligatorios</a>
-    </div>
+            <a href="{{ route('operadora.vehiculos') }}">Vehículos</a>
+            <a href="{{ route('operadora.control-turnos') }}">Control de Turnos</a>
+            <a href="{{ route('operadora.turnos-obligatorios') }}">Turnos Obligatorios</a>
+        </div>
+
         <div class="stats-grid">
             <div class="stat-card">
                 <h3>Turnos de Hoy</h3>
