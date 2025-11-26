@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class SolicitudCambioRuta extends Model
 {
+    use HasFactory;
+
     protected $table = 'solicitudes_cambio_ruta';
     protected $primaryKey = 'id_solicitud';
     public $timestamps = false;
@@ -14,7 +17,6 @@ class SolicitudCambioRuta extends Model
         'id_conductor',
         'id_vehiculo',
         'id_tarifa_destino',
-        'fecha_solicitud',
         'fecha_viaje_programada',
         'nombre_contratante',
         'documento_contratante',
@@ -22,42 +24,35 @@ class SolicitudCambioRuta extends Model
         'direccion_origen',
         'direccion_destino',
         'numero_pasajeros',
+        'tarifa_cobrada',
         'autorizado_por',
-        'fecha_autorizacion',
+        'fecha_solicitud',
         'fecha_inicio_real',
-        'fecha_fin_real',
-        'tarifa_cobrada'
+        'fecha_respuesta'
     ];
 
-    /**
-     * Relación con Conductor
-     */
-    public function conductor()
-    {
-        return $this->belongsTo(Conductor::class, 'id_conductor', 'id_conductor');
-    }
-
-    /**
-     * Relación con Vehículo
-     */
+    protected $casts = [
+        'fecha_solicitud' => 'datetime',
+        'fecha_respuesta' => 'datetime'
+    ];
     public function vehiculo()
     {
         return $this->belongsTo(Vehiculo::class, 'id_vehiculo', 'id_vehiculo');
     }
 
-    /**
-     * Relación con Tarifa Destino
-     */
-    public function tarifaDestino()
+    public function conductor()
     {
-        return $this->belongsTo(TarifaDestino::class, 'id_tarifa_destino', 'id_tarifa');
+        return $this->belongsTo(Conductor::class, 'id_conductor', 'id_conductor');
     }
 
-    /**
-     * Relación con Usuario que autorizó
-     */
-    public function autorizadoPor()
+    public function tarifaDestino(){
+        return $this->belongsTo(TarifaDestino::class, 'id_tarifa_destino', 'id_tarifa');
+    }
+     public function autorizadoPor()
     {
         return $this->belongsTo(User::class, 'autorizado_por', 'id_usuario');
+        // O si usas User en lugar de Usuario:
+        // return $this->belongsTo(User::class, 'autorizado_por', 'id');
     }
+    
 }

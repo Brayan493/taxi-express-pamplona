@@ -339,36 +339,46 @@
                         Información del Conductor y Vehículo
                     </h3>
                     
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label class="form-label">
-                                Conductor <span class="required">*</span>
-                            </label>
-                            <select name="id_conductor" required class="form-select" value="{{ old('id_conductor') }}">
-                                <option value="">Seleccionar conductor...</option>
-                                @foreach($conductores as $conductor)
-                                    <option value="{{ $conductor->id_conductor }}" {{ old('id_conductor') == $conductor->id_conductor ? 'selected' : '' }}>
-                                        {{ $conductor->primer_nombre }} {{ $conductor->primer_apellido }} 
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">
-                                Vehículo <span class="required">*</span>
-                            </label>
-                            <select name="id_vehiculo" required class="form-select" value="{{ old('id_vehiculo') }}">
-                                <option value="">Seleccionar vehículo...</option>
-                                @foreach($vehiculos as $vehiculo)
-                                    <option value="{{ $vehiculo->id_vehiculo }}" {{ old('id_vehiculo') == $vehiculo->id_vehiculo ? 'selected' : '' }}>
-                                        {{ $vehiculo->placa }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
+                   <div class="form-grid">
+                    <!-- Campo oculto con el ID del conductor autenticado -->
+                    <input type="hidden" name="id_conductor" value="{{ $conductor->id_conductor }}">
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            Conductor
+                        </label>
+                        <input type="text" class="form-control" value="{{ $conductor->primer_nombre }} {{ $conductor->primer_apellido }}" disabled>
+                        <small class="form-text text-muted">Esta solicitud se registrará a tu nombre</small>
                     </div>
-                </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            Vehículo <span class="required">*</span>
+                        </label>
+                        <select name="id_vehiculo" required class="form-select">
+                            <option value="">Seleccionar vehículo...</option>
+                            @foreach($vehiculos as $vehiculo)
+                                <option value="{{ $vehiculo->id_vehiculo }}" {{ old('id_vehiculo') == $vehiculo->id_vehiculo ? 'selected' : '' }}>
+                                    {{ $vehiculo->placa }} - {{ $vehiculo->marca ?? '' }} {{ $vehiculo->modelo ?? '' }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                 </div>
+            </div>
+
+             <div class="form-group">
+            <label class="form-label">
+                Tarifa/Destino <span class="required">*</span>
+            </label>
+            <select name="id_tarifa_destino" required class="form-select">
+                <option value="">Seleccionar tarifa...</option>
+                @foreach($tarifas as $tarifa)
+                    <option value="{{ $tarifa->id_tarifa }}" {{ old('id_tarifa_destino') == $tarifa->id_tarifa ? 'selected' : '' }}>
+                        {{ $tarifa->nombre_destino }} - ${{ number_format($tarifa->tarifa_base, 0) }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
 
                 <!-- Sección: Información del Contratante -->
                 <div class="form-section">
@@ -503,7 +513,7 @@
 
             if (!isValid) {
                 e.preventDefault();
-                alert('⚠️ Por favor complete todos los campos obligatorios:\n\n' + emptyFields.join('\n'));
+                alert('⚠ Por favor complete todos los campos obligatorios:\n\n' + emptyFields.join('\n'));
                 return false;
             }
         });
