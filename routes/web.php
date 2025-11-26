@@ -6,6 +6,8 @@ use App\Http\Controllers\OperadoraController;
 use App\Http\Controllers\ConductorController;
 use Illuminate\Support\Facades\Route;
 
+
+
 // RUTAS PÚBLICAS
 Route::get('/', function () {
     return view('welcome');
@@ -37,7 +39,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/logout', [LoginController::class, 'logout'])->name('logout.get');
     
     // Admin
-    Route::middleware(['checkRole:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::middleware(['auth', 'checkRole:admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
         Route::get('/vehiculos', [AdminController::class, 'vehiculos'])->name('vehiculos');
         Route::get('/conductores', [AdminController::class, 'conductores'])->name('conductores');
@@ -50,30 +52,27 @@ Route::middleware(['auth'])->group(function () {
     
     // Operadora
     Route::middleware(['checkRole:operadora'])->prefix('operadora')->name('operadora.')->group(function () {
-        // Rutas principales del dashboard
         Route::get('/dashboard', [OperadoraController::class, 'dashboard'])->name('dashboard');
         Route::get('/control-turnos', [OperadoraController::class, 'controlTurnos'])->name('control-turnos');
         Route::get('/turnos-obligatorios', [OperadoraController::class, 'turnosObligatorios'])->name('turnos-obligatorios');
         Route::get('/vehiculos', [OperadoraController::class, 'vehiculos'])->name('vehiculos');
-
-        // Rutas de gestión de la Operadora (Añadidas)
-        Route::get('/conductores', [OperadoraController::class, 'conductores'])->name('conductores');
-        Route::get('/alertas', [OperadoraController::class, 'alertas'])->name('alertas');
-        
-        // ✅ Rutas de la nueva funcionalidad de cumplimiento
-        Route::get('/cumplimiento-turnos', [OperadoraController::class, 'cumplimientoTurnos'])->name('cumplimiento-turnos');
-        Route::get('/cumplimiento-turnos/{id}', [OperadoraController::class, 'detalleCumplimiento'])->name('detalle-cumplimiento');
     });
     
     // Conductores
-    Route::middleware(['checkRole:conductor'])->prefix('conductor')->name('conductor.')->group(function () {
-        Route::get('/dashboard', [ConductorController::class, 'dashboard'])->name('dashboard');
-        Route::get('/mis-turnos', [ConductorController::class, 'misTurnos'])->name('mis-turnos');
-        Route::get('/alertas', [ConductorController::class, 'alertas'])->name('alertas');
-        Route::get('/conductores', [ConductorController::class, 'conductores'])->name('conductores');
-        Route::get('/mantenimiento-general', [ConductorController::class, 'mantenimientoGeneral'])->name('mantenimiento-general');
-        Route::get('/solicitudes-cambio-ruta', [ConductorController::class, 'solicitudesCambioRuta'])->name('solicitudes-cambio-ruta');
-        Route::get('/tarifas', [ConductorController::class, 'tarifas'])->name('tarifas');
-        Route::get('/vehiculos', [ConductorController::class, 'vehiculos'])->name('vehiculos');
-    });
+Route::middleware(['auth'])->prefix('conductor')->name('conductor.')->group(function () {
+    Route::get('/dashboard', [ConductorController::class, 'dashboard'])->name('dashboard');
+    Route::get('/mis-turnos', [ConductorController::class, 'misTurnos'])->name('mis-turnos');
+    Route::get('/alertas', [ConductorController::class, 'alertas'])->name('alertas');
+    Route::get('/conductores', [ConductorController::class, 'conductores'])->name('conductores');
+    Route::get('/mantenimiento-general', [ConductorController::class, 'mantenimientoGeneral'])->name('mantenimiento-general');
+    
+    // Solicitudes de cambio de ruta
+    Route::get('/solicitudes-cambio-ruta', [ConductorController::class, 'solicitudesCambioRuta'])
+        ->name('solicitudes-cambio-ruta');
+    Route::post('/solicitudes-cambio-ruta', [ConductorController::class, 'storeSolicitudCambioRuta'])
+        ->name('solicitudes-cambio-ruta.store');
+    
+    Route::get('/tarifas', [ConductorController::class, 'tarifas'])->name('tarifas');
+    Route::get('/vehiculos', [ConductorController::class, 'vehiculos'])->name('vehiculos');
+});
 });
